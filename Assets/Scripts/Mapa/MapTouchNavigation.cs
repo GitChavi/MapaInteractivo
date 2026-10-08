@@ -3,12 +3,13 @@ using UnityEngine.InputSystem;
 using UnityEngine.InputSystem.Controls;
 using UnityEngine.SceneManagement;
 
-/// <summary>Placeholder touch navigation for the interactive map.</summary>
+/// <summary>Pan and zoom the map with touch gestures or a mouse.</summary>
 public sealed class MapTouchNavigation : MonoBehaviour
 {
     [SerializeField] private float minimumZoom = 1f;
     [SerializeField] private float maximumZoom = 3.5f;
     [SerializeField] private float dragSmoothing = 20f;
+    [SerializeField] private float mouseZoomStep = 1.15f;
 
     private RectTransform map;
     private Vector2 targetPosition;
@@ -46,20 +47,20 @@ public sealed class MapTouchNavigation : MonoBehaviour
     private void Update()
     {
         Touchscreen screen = Touchscreen.current;
-        if (screen == null)
-            return;
-
         int activeTouches = 0;
         TouchControl first = null;
         TouchControl second = null;
-        foreach (TouchControl touch in screen.touches)
+        if (screen != null)
         {
-            if (!touch.press.isPressed)
-                continue;
+            foreach (TouchControl touch in screen.touches)
+            {
+                if (!touch.press.isPressed)
+                    continue;
 
-            if (activeTouches == 0) first = touch;
-            else if (activeTouches == 1) second = touch;
-            activeTouches++;
+                if (activeTouches == 0) first = touch;
+                else if (activeTouches == 1) second = touch;
+                activeTouches++;
+            }
         }
 
         if (activeTouches == 1 && first != null)
@@ -77,6 +78,17 @@ public sealed class MapTouchNavigation : MonoBehaviour
         else
         {
             previousPinchDistance = 0f;
+        }
+
+        Mouse mouse = Mouse.current;
+        if (mouse != null)
+        {
+            Vector2 scroll = mouse.scroll.ReadValue();
+            if (!Mathf.Approximately(scroll.y, 0f))
+                targetScale = Mathf.Clamp(targetScale * Mathf.Pow(mouseZoomStep, scroll.y / 120f), minimumZoom, maximumZoom);
+
+            if (mouse.leftButton.isPressed)
+                targetPosition += mouse.delta.ReadValue() / CanvasScale();
         }
 
         float blend = 1f - Mathf.Exp(-dragSmoothing * Time.unscaledDeltaTime);
