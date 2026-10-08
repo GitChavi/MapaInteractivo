@@ -16,7 +16,7 @@ public sealed class AmbientAudioTogglePlaceholder : MonoBehaviour
 
     private static void AddControl(Scene scene, LoadSceneMode mode)
     {
-        Canvas canvas = Object.FindAnyObjectByType<Canvas>();
+        Canvas canvas = UnityEngine.Object.FindAnyObjectByType<Canvas>();
         if (canvas == null || canvas.transform.Find("AmbientAudioTogglePlaceholder") != null)
             return;
 
@@ -82,7 +82,7 @@ public sealed class AmbientAudioTogglePlaceholder : MonoBehaviour
 
     private static AudioSource FindAmbientSource()
     {
-        foreach (AudioSource source in Object.FindObjectsByType<AudioSource>(FindObjectsSortMode.None))
+        foreach (AudioSource source in UnityEngine.Object.FindObjectsByType<AudioSource>(FindObjectsSortMode.None))
         {
             string name = source.gameObject.name;
             if (name.IndexOf("ambient", StringComparison.OrdinalIgnoreCase) >= 0 ||
