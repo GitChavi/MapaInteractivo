@@ -2319,14 +2319,6 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!1660057539 &9223372036854775807
-SceneRoots:
-  m_ObjectHideFlags: 0
-  m_Roots:
-  - {fileID: 517524424}
-  - {fileID: 1119242726}
-  - {fileID: 1213215648}
-  - {fileID: 1965402820}
 --- !u!1 &2100000501
 GameObject:
   m_ObjectHideFlags: 0
@@ -2866,7 +2858,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: Sin narración
+  m_text: Sin narraciÃ³n
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
@@ -3205,4 +3197,11 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2100000536}
   m_CullTransparentMesh: 1
-
+--- !u!1660057539 &9223372036854775807
+SceneRoots:
+  m_ObjectHideFlags: 0
+  m_Roots:
+  - {fileID: 517524424}
+  - {fileID: 1119242726}
+  - {fileID: 1213215648}
+  - {fileID: 1965402820}
