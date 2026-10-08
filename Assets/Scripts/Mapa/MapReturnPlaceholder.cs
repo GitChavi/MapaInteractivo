@@ -52,7 +52,7 @@ public sealed class MapReturnPlaceholder : MonoBehaviour
         labelRect.offsetMin = new Vector2(8f, 4f);
         labelRect.offsetMax = new Vector2(-8f, -4f);
         Text label = labelObject.GetComponent<Text>();
-        label.text = "← Volver al mapa";
+        label.text = "Volver al mapa";
         label.alignment = TextAnchor.MiddleCenter;
         label.font = Resources.GetBuiltinResource<Font>("Arial.ttf");
         label.fontSize = 22;
@@ -62,11 +62,16 @@ public sealed class MapReturnPlaceholder : MonoBehaviour
 
     private static void ReturnToMap()
     {
-        // Placeholder hook: future immersive point panels will be closed here.
         GameObject map = GameObject.Find("mapa");
         if (map != null)
             map.SetActive(true);
 
-        Debug.Log("Placeholder: conectar este botón con el retorno al mapa y conservar el progreso.");
+        string[] popupNames = { "Tunda", "Mohan", "MadreMonte", "Silbon" };
+        foreach (string popupName in popupNames)
+        {
+            GameObject popup = GameObject.Find(popupName);
+            if (popup != null)
+                popup.SetActive(false);
+        }
     }
 }
