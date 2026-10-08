@@ -1,111 +1,106 @@
-using System;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
+using TMPro;
 
-/// <summary>Creates the pause and repeat controls used by a point narration.</summary>
+/// <summary>Pause and repeat controls for the narration attached to an open point.</summary>
 public sealed class NarrationControlsPlaceholder : MonoBehaviour
 {
+    [SerializeField] private Button pauseButton;
+    [SerializeField] private Button repeatButton;
+    [SerializeField] private TMP_Text pauseLabel;
+    [SerializeField] private TMP_Text repeatLabel;
+
+    private AudioSource currentSource;
     private bool paused;
 
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
     private static void RegisterSceneHook()
     {
-        SceneManager.sceneLoaded += AddControls;
+        SceneManager.sceneLoaded += FindSceneController;
     }
 
-    private static void AddControls(Scene scene, LoadSceneMode mode)
+    private static void FindSceneController(Scene scene, LoadSceneMode mode)
     {
-        Canvas canvas = Object.FindAnyObjectByType<Canvas>();
-        if (canvas == null || canvas.transform.Find("NarrationControlsPlaceholder") != null)
-            return;
-
-        GameObject group = new GameObject("NarrationControlsPlaceholder", typeof(RectTransform));
-        RectTransform groupRect = group.GetComponent<RectTransform>();
-        groupRect.SetParent(canvas.transform, false);
-        groupRect.anchorMin = new Vector2(0.5f, 0f);
-        groupRect.anchorMax = new Vector2(0.5f, 0f);
-        groupRect.pivot = new Vector2(0.5f, 0f);
-        groupRect.anchoredPosition = new Vector2(0f, 28f);
-        groupRect.sizeDelta = new Vector2(420f, 58f);
-
-        CreateButton(groupRect, "PauseNarration", "Pausar", new Vector2(0f, 0f), TogglePause);
-        CreateButton(groupRect, "RepeatNarration", "Repetir", new Vector2(210f, 0f), Repeat);
+        GameObject controls = GameObject.Find("NarrationControls");
+        if (controls != null && controls.GetComponent<NarrationControlsPlaceholder>() == null)
+            controls.AddComponent<NarrationControlsPlaceholder>();
     }
 
-    private static void CreateButton(RectTransform parent, string name, string title, Vector2 position, Action action)
+    private void Awake()
     {
-        GameObject buttonObject = new GameObject(name, typeof(RectTransform), typeof(CanvasRenderer), typeof(Image), typeof(Button));
-        RectTransform rect = buttonObject.GetComponent<RectTransform>();
-        rect.SetParent(parent, false);
-        rect.anchorMin = new Vector2(0f, 0.5f);
-        rect.anchorMax = new Vector2(0f, 0.5f);
-        rect.pivot = new Vector2(0f, 0.5f);
-        rect.anchoredPosition = position;
-        rect.sizeDelta = new Vector2(190f, 54f);
+        if (pauseButton == null)
+            pauseButton = transform.Find("PauseNarration")?.GetComponent<Button>();
+        if (repeatButton == null)
+            repeatButton = transform.Find("RepeatNarration")?.GetComponent<Button>();
+        if (pauseLabel == null && pauseButton != null)
+            pauseLabel = pauseButton.GetComponentInChildren<TMP_Text>(true);
+        if (repeatLabel == null && repeatButton != null)
+            repeatLabel = repeatButton.GetComponentInChildren<TMP_Text>(true);
 
-        Image image = buttonObject.GetComponent<Image>();
-        image.color = new Color(0.12f, 0.18f, 0.14f, 0.92f);
-        Button button = buttonObject.GetComponent<Button>();
-        button.targetGraphic = image;
-        button.onClick.AddListener(() => action());
-
-        GameObject labelObject = new GameObject("Label", typeof(RectTransform), typeof(CanvasRenderer), typeof(Text));
-        RectTransform labelRect = labelObject.GetComponent<RectTransform>();
-        labelRect.SetParent(rect, false);
-        labelRect.anchorMin = Vector2.zero;
-        labelRect.anchorMax = Vector2.one;
-        labelRect.offsetMin = new Vector2(8f, 4f);
-        labelRect.offsetMax = new Vector2(-8f, -4f);
-        Text label = labelObject.GetComponent<Text>();
-        label.text = title;
-        label.alignment = TextAnchor.MiddleCenter;
-        label.font = Resources.GetBuiltinResource<Font>("Arial.ttf");
-        label.fontSize = 22;
-        label.color = Color.white;
-        label.raycastTarget = false;
+        if (pauseButton != null)
+            pauseButton.onClick.AddListener(TogglePause);
+        if (repeatButton != null)
+            repeatButton.onClick.AddListener(RepeatNarration);
     }
 
-    private static void TogglePause()
+    private void Update()
     {
         AudioSource source = FindNarrationSource();
-        if (source == null)
+        if (source != currentSource)
         {
-            Debug.Log("Placeholder: asignar el AudioSource de la narración del punto.");
-            return;
+            currentSource = source;
+            paused = false;
         }
 
-        NarrationControlsPlaceholder control = source.GetComponent<NarrationControlsPlaceholder>();
-        if (control == null)
-            control = source.gameObject.AddComponent<NarrationControlsPlaceholder>();
-
-        control.paused = !control.paused;
-        if (control.paused) source.Pause();
-        else source.UnPause();
+        bool available = currentSource != null && currentSource.clip != null;
+        if (pauseButton != null)
+            pauseButton.interactable = available;
+        if (repeatButton != null)
+            repeatButton.interactable = available;
+        if (pauseLabel != null)
+            pauseLabel.text = available ? paused ? "Reanudar" : "Pausar" : "Sin narración";
+        if (repeatLabel != null)
+            repeatLabel.text = "Repetir";
     }
 
-    private static void Repeat()
+    public void TogglePause()
     {
-        AudioSource source = FindNarrationSource();
-        if (source == null)
-        {
-            Debug.Log("Placeholder: asignar el AudioSource de la narración del punto.");
+        if (currentSource == null || currentSource.clip == null)
             return;
-        }
 
-        source.time = 0f;
-        source.Play();
+        paused = !paused;
+        if (paused)
+            currentSource.Pause();
+        else
+            currentSource.UnPause();
+    }
+
+    public void RepeatNarration()
+    {
+        if (currentSource == null || currentSource.clip == null)
+            return;
+
+        currentSource.Stop();
+        currentSource.time = 0f;
+        currentSource.Play();
+        paused = false;
     }
 
     private static AudioSource FindNarrationSource()
     {
-        foreach (AudioSource source in Object.FindObjectsByType<AudioSource>(FindObjectsSortMode.None))
+        string[] pointNames = { "Tunda", "Mohan", "MadreMonte", "Silbon" };
+        foreach (string pointName in pointNames)
         {
-            string name = source.gameObject.name;
-            if (name.IndexOf("narr", StringComparison.OrdinalIgnoreCase) >= 0 ||
-                name.IndexOf("relato", StringComparison.OrdinalIgnoreCase) >= 0 ||
-                name.IndexOf("voz", StringComparison.OrdinalIgnoreCase) >= 0)
-                return source;
+            GameObject point = GameObject.Find(pointName);
+            if (point == null || !point.activeInHierarchy)
+                continue;
+
+            foreach (AudioSource source in point.GetComponentsInChildren<AudioSource>(true))
+            {
+                if (source.clip != null)
+                    return source;
+            }
         }
 
         return null;
