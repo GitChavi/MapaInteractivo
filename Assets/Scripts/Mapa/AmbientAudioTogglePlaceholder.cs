@@ -4,7 +4,11 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
-/// <summary>Visible mute/unmute scaffold for point ambience.</summary>
+/// <summary>
+/// Control visible para silenciar y reactivar el ambiente del punto abierto.
+/// Busca los puntos narrativos conocidos, inicia su AudioSource en bucle y
+/// crea un ambiente sintético de prueba si el punto todavía no tiene un clip.
+/// </summary>
 public sealed class AmbientAudioTogglePlaceholder : MonoBehaviour
 {
     private Text label;
@@ -128,7 +132,7 @@ public sealed class AmbientAudioTogglePlaceholder : MonoBehaviour
 
     private static GameObject FindActivePoint()
     {
-        string[] pointNames = { "Tunda", "Mohan", "MadreMonte", "Silbon" };
+        string[] pointNames = { "Tunda", "Mohan", "Bachue", "MadreMonte", "Silbon" };
         foreach (string pointName in pointNames)
         {
             GameObject point = GameObject.Find(pointName);

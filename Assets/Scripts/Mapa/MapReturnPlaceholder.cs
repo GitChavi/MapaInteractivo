@@ -2,7 +2,11 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
-/// <summary>Visible return control scaffold for the immersive point experience.</summary>
+/// <summary>
+/// Añade un botón visible para cerrar el punto narrativo activo y mostrar de
+/// nuevo el mapa, conservando el estado que el mapa tenía antes de abrirlo.
+/// El botón se conecta al Canvas cuando se carga la escena.
+/// </summary>
 public sealed class MapReturnPlaceholder : MonoBehaviour
 {
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
@@ -66,7 +70,7 @@ public sealed class MapReturnPlaceholder : MonoBehaviour
         if (map != null)
             map.SetActive(true);
 
-        string[] popupNames = { "Tunda", "Mohan", "MadreMonte", "Silbon" };
+        string[] popupNames = { "Tunda", "Mohan", "Bachue", "MadreMonte", "Silbon" };
         foreach (string popupName in popupNames)
         {
             GameObject popup = GameObject.Find(popupName);

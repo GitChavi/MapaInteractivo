@@ -3,7 +3,11 @@ using UnityEngine.InputSystem;
 using UnityEngine.InputSystem.Controls;
 using UnityEngine.SceneManagement;
 
-/// <summary>Pan and zoom the map with touch gestures or a mouse.</summary>
+/// <summary>
+/// Permite explorar el mapa mediante arrastre táctil o con el botón izquierdo
+/// del mouse, y acercar/alejar con pellizco o rueda del mouse. Suaviza los
+/// movimientos para evitar saltos y limita el zoom al rango configurado.
+/// </summary>
 public sealed class MapTouchNavigation : MonoBehaviour
 {
     [SerializeField] private float minimumZoom = 1f;

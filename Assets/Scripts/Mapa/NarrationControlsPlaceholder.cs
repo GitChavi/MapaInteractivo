@@ -3,7 +3,11 @@ using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 using TMPro;
 
-/// <summary>Pause and repeat controls for the narration attached to an open point.</summary>
+/// <summary>
+/// Conecta los botones Pausar/Reanudar y Repetir al hijo NarrationAudioSource
+/// del punto abierto. Se muestran junto al popup activo y se ocultan al volver
+/// al mapa; se desactivan si el punto no tiene clip de narración.
+/// </summary>
 public sealed class NarrationControlsPlaceholder : MonoBehaviour
 {
     [SerializeField] private Button pauseButton;
@@ -46,11 +50,24 @@ public sealed class NarrationControlsPlaceholder : MonoBehaviour
 
     private void Update()
     {
+        bool pointOpen = IsPointOpen();
+        if (pauseButton != null)
+            pauseButton.gameObject.SetActive(pointOpen);
+        if (repeatButton != null)
+            repeatButton.gameObject.SetActive(pointOpen);
+
         AudioSource source = FindNarrationSource();
         if (source != currentSource)
         {
             currentSource = source;
             paused = false;
+            if (currentSource != null && currentSource.clip != null)
+            {
+                currentSource.playOnAwake = false;
+                currentSource.loop = false;
+                currentSource.spatialBlend = 0f;
+                currentSource.Play();
+            }
         }
 
         bool available = currentSource != null && currentSource.clip != null;
@@ -59,9 +76,9 @@ public sealed class NarrationControlsPlaceholder : MonoBehaviour
         if (repeatButton != null)
             repeatButton.interactable = available;
         if (pauseLabel != null)
-            pauseLabel.text = available ? paused ? "Reanudar" : "Pausar" : "Sin narración";
+            pauseLabel.text = available ? paused ? "Reanudar audio" : "Pausar audio" : "Sin narración";
         if (repeatLabel != null)
-            repeatLabel.text = "Repetir";
+            repeatLabel.text = "Repetir audio";
     }
 
     public void TogglePause()
@@ -89,7 +106,7 @@ public sealed class NarrationControlsPlaceholder : MonoBehaviour
 
     private static AudioSource FindNarrationSource()
     {
-        string[] pointNames = { "Tunda", "Mohan", "MadreMonte", "Silbon" };
+        string[] pointNames = { "Tunda", "Mohan", "Bachue", "MadreMonte", "Silbon" };
         foreach (string pointName in pointNames)
         {
             GameObject point = GameObject.Find(pointName);
@@ -98,11 +115,24 @@ public sealed class NarrationControlsPlaceholder : MonoBehaviour
 
             foreach (AudioSource source in point.GetComponentsInChildren<AudioSource>(true))
             {
-                if (source.clip != null)
+                if (source.gameObject.name == "NarrationAudioSource" && source.clip != null)
                     return source;
             }
         }
 
         return null;
+    }
+
+    private static bool IsPointOpen()
+    {
+        string[] pointNames = { "Tunda", "Mohan", "Bachue", "MadreMonte", "Silbon" };
+        foreach (string pointName in pointNames)
+        {
+            GameObject point = GameObject.Find(pointName);
+            if (point != null && point.activeInHierarchy)
+                return true;
+        }
+
+        return false;
     }
 }
