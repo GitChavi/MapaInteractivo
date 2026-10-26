@@ -37,7 +37,7 @@ La ficha de Bachué usa la misma composición de popup (retrato a la izquierda y
 ### 1.1.1 — Zoom y desplazamiento
 
 - En computador, arrastra el mapa con el botón izquierdo del mouse.
-- Usa la rueda para acercar y alejar. El movimiento debe ser gradual y el zoom debe mantenerse dentro de sus límites.
+- Usa la rueda del mouse o los botones **+** y **-** de la esquina inferior derecha para acercar y alejar. El movimiento debe ser gradual y el zoom debe mantenerse dentro de sus límites.
 - En un dispositivo táctil, arrastra con un dedo y pellizca con dos dedos para cambiar el zoom.
 
 ### 1.4.1 — Volver al mapa

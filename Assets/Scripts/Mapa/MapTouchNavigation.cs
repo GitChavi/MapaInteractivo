@@ -1,7 +1,7 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.InputSystem.Controls;
-using UnityEngine.SceneManagement;
+using UnityEngine.UI;
 
 /// <summary>
 /// Permite explorar el mapa mediante arrastre táctil o con el botón izquierdo
@@ -14,26 +14,13 @@ public sealed class MapTouchNavigation : MonoBehaviour
     [SerializeField] private float maximumZoom = 3.5f;
     [SerializeField] private float dragSmoothing = 20f;
     [SerializeField] private float mouseZoomStep = 1.15f;
+    [SerializeField] private Button zoomInButton;
+    [SerializeField] private Button zoomOutButton;
 
     private RectTransform map;
     private Vector2 targetPosition;
     private float targetScale = 1f;
     private float previousPinchDistance;
-
-    [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
-    private static void RegisterSceneHook()
-    {
-        SceneManager.sceneLoaded += AttachToMap;
-    }
-
-    private static void AttachToMap(Scene scene, LoadSceneMode mode)
-    {
-        GameObject mapObject = GameObject.Find("mapa");
-        if (mapObject == null || mapObject.GetComponent<MapTouchNavigation>() != null)
-            return;
-
-        mapObject.AddComponent<MapTouchNavigation>();
-    }
 
     private void Awake()
     {
@@ -46,6 +33,23 @@ public sealed class MapTouchNavigation : MonoBehaviour
 
         targetPosition = map.anchoredPosition;
         targetScale = map.localScale.x;
+
+        Transform canvas = GetComponentInParent<Canvas>()?.transform;
+        if (zoomInButton == null && canvas != null)
+            zoomInButton = canvas.Find("MapZoomInButton")?.GetComponent<Button>();
+        if (zoomOutButton == null && canvas != null)
+            zoomOutButton = canvas.Find("MapZoomOutButton")?.GetComponent<Button>();
+
+        if (zoomInButton != null)
+        {
+            zoomInButton.onClick.RemoveListener(ZoomIn);
+            zoomInButton.onClick.AddListener(ZoomIn);
+        }
+        if (zoomOutButton != null)
+        {
+            zoomOutButton.onClick.RemoveListener(ZoomOut);
+            zoomOutButton.onClick.AddListener(ZoomOut);
+        }
     }
 
     private void Update()
@@ -89,7 +93,12 @@ public sealed class MapTouchNavigation : MonoBehaviour
         {
             Vector2 scroll = mouse.scroll.ReadValue();
             if (!Mathf.Approximately(scroll.y, 0f))
-                targetScale = Mathf.Clamp(targetScale * Mathf.Pow(mouseZoomStep, scroll.y / 120f), minimumZoom, maximumZoom);
+            {
+                // Some mice report 120 units per wheel notch; touchpads and
+                // other platforms often report small values such as 1 or 3.
+                float wheelSteps = Mathf.Abs(scroll.y) <= 10f ? scroll.y : scroll.y / 120f;
+                targetScale = Mathf.Clamp(targetScale * Mathf.Pow(mouseZoomStep, wheelSteps), minimumZoom, maximumZoom);
+            }
 
             if (mouse.leftButton.isPressed)
                 targetPosition += mouse.delta.ReadValue() / CanvasScale();
@@ -106,4 +115,15 @@ public sealed class MapTouchNavigation : MonoBehaviour
         Canvas canvas = GetComponentInParent<Canvas>();
         return canvas != null ? Mathf.Max(canvas.scaleFactor, 0.01f) : 1f;
     }
+
+    public void ZoomIn()
+    {
+        targetScale = Mathf.Clamp(targetScale * mouseZoomStep, minimumZoom, maximumZoom);
+    }
+
+    public void ZoomOut()
+    {
+        targetScale = Mathf.Clamp(targetScale / mouseZoomStep, minimumZoom, maximumZoom);
+    }
+
 }

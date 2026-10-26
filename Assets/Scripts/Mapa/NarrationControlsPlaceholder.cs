@@ -1,5 +1,4 @@
 using UnityEngine;
-using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 using TMPro;
 
@@ -17,19 +16,6 @@ public sealed class NarrationControlsPlaceholder : MonoBehaviour
 
     private AudioSource currentSource;
     private bool paused;
-
-    [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
-    private static void RegisterSceneHook()
-    {
-        SceneManager.sceneLoaded += FindSceneController;
-    }
-
-    private static void FindSceneController(Scene scene, LoadSceneMode mode)
-    {
-        GameObject controls = GameObject.Find("NarrationControls");
-        if (controls != null && controls.GetComponent<NarrationControlsPlaceholder>() == null)
-            controls.AddComponent<NarrationControlsPlaceholder>();
-    }
 
     private void Awake()
     {
