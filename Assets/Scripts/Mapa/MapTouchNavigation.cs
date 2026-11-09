@@ -22,6 +22,9 @@ public sealed class MapTouchNavigation : MonoBehaviour
     private float targetScale = 1f;
     private float previousPinchDistance;
 
+    public GameObject completionPanel;
+    public GameObject trashPanel;
+
     private void Awake()
     {
         map = transform as RectTransform;
@@ -54,6 +57,19 @@ public sealed class MapTouchNavigation : MonoBehaviour
 
     private void Update()
     {
+        if (trashPanel != null &&
+            trashPanel.activeInHierarchy)
+        {
+            return;
+        }
+
+        // Bloquear movimiento cuando aparece el panel
+        if (completionPanel != null &&
+            completionPanel.activeInHierarchy)
+        {
+            return;
+        }
+
         Touchscreen screen = Touchscreen.current;
         int activeTouches = 0;
         TouchControl first = null;
