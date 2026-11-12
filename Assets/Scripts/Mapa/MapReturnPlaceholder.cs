@@ -5,7 +5,7 @@ using UnityEngine.UI;
 /// <summary>Control del botón de retorno que está guardado en la escena.</summary>
 public sealed class MapReturnPlaceholder : MonoBehaviour
 {
-    private static readonly string[] PopupNames = { "Tunda", "Mohan", "Bachue", "MadreMonte", "Silbon" };
+    private static readonly string[] PopupNames = { "Tunda_todo", "MadreMonte_Todo", "Tunda", "Mohan", "Bachue", "MadreMonte", "Silbon" };
 
     [SerializeField] private Button returnButton;
     [SerializeField] private TMP_Text returnLabel;

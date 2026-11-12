@@ -24,6 +24,10 @@ public sealed class MapTouchNavigation : MonoBehaviour
 
     public GameObject completionPanel;
     public GameObject trashPanel;
+    [Tooltip("Mientras el inventario esté abierto no se mueve el mapa.")]
+    public GameObject inventoryPanel;
+    [Tooltip("Mientras el panel del tutorial esté abierto no se mueve el mapa.")]
+    public GameObject tutorialPanel;
 
     private void Awake()
     {
@@ -62,6 +66,11 @@ public sealed class MapTouchNavigation : MonoBehaviour
         {
             return;
         }
+
+        if (inventoryPanel != null && inventoryPanel.activeInHierarchy)
+            return;
+        if (tutorialPanel != null && tutorialPanel.activeInHierarchy)
+            return;
 
         // Bloquear movimiento cuando aparece el panel
         if (completionPanel != null &&
